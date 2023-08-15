@@ -26,19 +26,22 @@ declare module "next-auth" {
       refresh_token:string
       // ...other properties
       // role: UserRole;
+      
     };
   }
 
-  // interface User {
-  //   access_token:string
+  interface User {
+    access_token:string
+    refresh_token:string
+    expires_in:number
     
-  // }
+  }
 }
 declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
-      error?: "RefreshAccessTokenError"
+      error?: any
       access_token:string
-      expires_in:number
+      accessTokenExpires:number
       refresh_token:string
       
   }
@@ -48,65 +51,68 @@ declare module "next-auth/jwt" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
+const OAUTH_CLIENT_ID = process.env.OAUTH_CLIENT_ID || ""
+const OAUTH_CLIENT_SECRET = process.env.OAUTH_CLIENT_SECRET || ""
+
+
 async function refreshAccessToken(token:JWT) {
   try {
-   
+    const formData = new URLSearchParams()
 
-    const res = await axios({
+    formData.append("grant_type", "refresh_token")
+    formData.append("client_id", OAUTH_CLIENT_ID)
+    formData.append("client_secret",OAUTH_CLIENT_SECRET )
+    formData.append("refresh_token", token.refresh_token)
+
+    const response = await axios(
+     {
       method:"post",
-      url:"/oauth/token",
-      headers: { "Content-Type": "multipart/form-data" },
-      data:{client_id:"3_APPID",client_secret:"TOPSECRET",grant_type:"refresh_token",refresh_token:token.refresh_token}
-    })
-    const refreshedTokens = res.data
-
-    if (!refreshedTokens) {
-      throw refreshedTokens
-    }
-    const now = new Date()
-    const accessTokenExpires = now.setSeconds(
-      now.getSeconds() + parseInt(refreshedTokens.expires_in) - 10,
+      data:formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+     }
     )
+
+    const data =  response.data
+
+    if (!data) {
+      throw data
+    }
 
     return {
       ...token,
-      access_token: refreshedTokens.access_token,
-      expires_in: accessTokenExpires,
-      refresh_token: refreshedTokens.refresh_token ?? token.refresh_token, // Fall back to old refresh token
+      access_token: data.access_token,
+      accessTokenExpires: Date.now() + data.expires_in * 1000,
+      refresh_token: data.refresh_token ?? token.refresh_token,
     }
   } catch (error) {
-    console.error("Error refreshing access token", error)
-
-
-    return { ...token, error: "RefreshAccessTokenError" as const }
-
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    }
   }
 }
+
 export const authOptions: NextAuthOptions = {
  
   callbacks: {
     async jwt({ token, user ,account}):Promise<JWT> {
-      let res: JWT
-      const now = Date.now()
-      if (account && user) {
-      
-       res =  {
-        access_token: account.access_token as string,
-        expires_in: account.expires_at as number ,
-        refresh_token: account.refresh_token  as string,
-        user,
-       }
-     
-      }else if (token.expires_at === null || now < token.expires_in) {
-        // Subsequent use of JWT, the user has been logged in before
-        // access token has not expired yet
-        res = token
-      } else {
-        // access token has expired, try to update it
-        res =  await refreshAccessToken(token)
+   
+      if (user) {
+        token.access_token = user.access_token
+        token.accessTokenExpires = Date.now() + user.expires_in * 1000
+        token.refreshToken = user.refresh_token
       }
-     return res
-    // return {...token,...user}
+
+      // If token has not expired, return it,
+      if (Date.now() < token.accessTokenExpires) {
+        return token
+      }
+
+      // Otherwise, refresh the token.
+      return refreshAccessToken(token)
+   
     },
     async session({ session, token, user }) {
       session.user = token as any;

@@ -7,12 +7,11 @@ import { FaNoteSticky } from "react-icons/fa6";
 import createIcon from "../custom/createIcon";
 import { Pages, Routes } from "~/constants/enums";
 import { VscSignOut,  } from "react-icons/vsc";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import axios from "~/lib/axios";
 function ToggleLanguage({userSession}:{ userSession?:string | null}) {
   const [data , setData] = useState<{user:any}>()
-  // const session =useSession()
   const [errorMessage,setErrorMessage]= useState("")
   const [isLoading,setIsLoading]= useState(false)
   const activitiesLinksStyles =
@@ -40,7 +39,6 @@ function ToggleLanguage({userSession}:{ userSession?:string | null}) {
       }
       userSession  &&  fetchUser()
     },[])
-    
   const createDropDown = (linkName: string) => {
     return (
       <div className="dropdown">

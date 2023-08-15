@@ -1,9 +1,11 @@
 import {  GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { getServerSession } from "next-auth";
+import { JWT, getToken } from "next-auth/jwt";
 import Head from "next/head";
 import Layout from "~/components/Layout";
 import Landing from "~/components/home/Landing";
 import Search from "~/components/home/Search";
+import axios from "~/lib/axios";
 import { authOptions } from "~/server/auth";
 
 const Home:React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({userSession}) => {
@@ -27,11 +29,11 @@ const Home:React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({
   );
 };
 
+
 export default Home;
 export async function getServerSideProps(context:GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions)
-
-
+ 
   return {
     props: {
       userSession : JSON.stringify(session?.user) || null,
