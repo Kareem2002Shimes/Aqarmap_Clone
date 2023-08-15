@@ -4,7 +4,7 @@ import MainNavigation from "./header/MainNavigation";
 
 type LayoutProps = {
   children: React.ReactNode;
-  userSession:string | null
+  userSession?:string | null
 };
 const Layout = ({ children ,userSession}: LayoutProps) => {
   return (

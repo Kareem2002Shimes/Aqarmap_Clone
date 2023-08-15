@@ -9,14 +9,12 @@ import { Pages, Routes } from "~/constants/enums";
 import { VscSignOut,  } from "react-icons/vsc";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import useAxiosAuth from "~/lib/hooks/useAxiosAuth";
 import axios from "~/lib/axios";
 function ToggleLanguage({userSession}:{ userSession?:string | null}) {
   const [data , setData] = useState<{user:any}>()
   // const session =useSession()
   const [errorMessage,setErrorMessage]= useState("")
   const [isLoading,setIsLoading]= useState(false)
- const axiosAuth =  useAxiosAuth()
   const activitiesLinksStyles =
     "flex h-10 items-center gap-4 rounded-[10px] px-4 hover:bg-secondary hover:text-primary";
   const session = userSession && JSON.parse(userSession as string)
