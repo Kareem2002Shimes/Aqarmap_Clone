@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container {
+  @apply mx-auto w-full px-[15px] sm:w-[540px] md:w-[720px] lg:w-[960px] xl:w-[1140px] 2xl:w-[1320px];
+}
+.element-center {
+  @apply flex items-center justify-center;
+}
+.section-gap {
+  @apply mb-[30px] md:mb-[80px];
+}
+.input-field {
+  @apply h-10 w-full rounded-md bg-white px-4 text-sm text-accent shadow-sm ring-1 ring-slate-900/10 transition-colors duration-200 hover:ring-slate-300 focus:ring-primary dark:bg-slate-800 dark:text-slate-300 dark:hover:ring-slate-700 dark:focus:ring-primary;
+}
+.label-filed {
+  @apply mb-3 block font-medium capitalize text-slate-900 dark:text-slate-200;
+}
+.primary-btn {
+  @apply element-center w-full  bg-primary text-sm font-semibold capitalize text-white transition-colors duration-200 hover:bg-[#026baa];
+}
+.secondary-btn {
+  @apply element-center w-full  bg-[#f5f5f5] text-sm font-semibold capitalize text-primary transition-colors duration-200 hover:bg-[#e0e0e0];
+}
